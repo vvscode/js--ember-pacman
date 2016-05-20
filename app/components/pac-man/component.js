@@ -8,10 +8,10 @@ const {
 } = Ember;
 
 export default Ember.Component.extend(KeyboardShortcuts, {
-  x: 50,
-  y: 100,
-  width: 800,
-  height: 600,
+  x: 1,
+  y: 2,
+  width: 20,
+  height: 15,
   squareSize: 20,
 
   ctx: computed(function() {
@@ -20,11 +20,15 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   }),
 
   onDinInsertElement: on('didInsertElement', function() {
+    const squareSize = get(this, 'squareSize');
+    this.$('canvas').attr('width', get(this, 'width') * squareSize);
+    this.$('canvas').attr('height', get(this, 'height') * squareSize);
     this.drawCircle();
   }),
 
   clearScreen() {
-    get(this, 'ctx').clearRect(0, 0, get(this, 'width'), get(this, 'height'));
+    const squareSize = get(this, 'squareSize');
+    get(this, 'ctx').clearRect(0, 0, get(this, 'width') * squareSize, get(this, 'height') * squareSize);
   },
 
   movePacMan(direction, amount) {
@@ -35,29 +39,30 @@ export default Ember.Component.extend(KeyboardShortcuts, {
 
   drawCircle() {
     const ctx = get(this, 'ctx');
-    const x = get(this, 'x');
-    const y = get(this, 'y');
-    const radius = get(this, 'squareSize') / 2;
+    const squareSize = get(this, 'squareSize');
+    const pixelX = (get(this, 'x') + 1 / 2) * squareSize;
+    const pixelY = (get(this, 'y') + 1 / 2) * squareSize;
+    const y = (get(this, 'y') + 1 / 2) * squareSize;
 
     ctx.fillStyle = '#000';
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+    ctx.arc(pixelX, pixelY, squareSize / 2, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
   },
 
   keyboardShortcuts: {
     up() {
-      this.movePacMan('y', -1 * this.get('squareSize'));
+      this.movePacMan('y', -1);
     },
     down() {
-      this.movePacMan('y', this.get('squareSize'));
+      this.movePacMan('y', 1);
     },
     left() {
-      this.movePacMan('x', -1 * this.get('squareSize'));
+      this.movePacMan('x', -1);
     },
     right() {
-      this.movePacMan('x', this.get('squareSize'));
+      this.movePacMan('x', 1);
     },
   },
 });
