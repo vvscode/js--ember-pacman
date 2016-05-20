@@ -3,29 +3,38 @@ import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component';
 
 const {
   on,
-  get
+  get,
+  computed
 } = Ember;
 
 export default Ember.Component.extend(KeyboardShortcuts, {
   x: 50,
   y: 100,
+  width: 800,
+  height: 600,
   squareSize: 20,
+
+  ctx: computed(function() {
+    const canvas = this.$('canvas')[0];
+    return canvas.getContext('2d');
+  }),
 
   onDinInsertElement: on('didInsertElement', function() {
     this.drawCircle();
   }),
 
   clearScreen() {
-    const canvas = this.$('canvas')[0];
-    const ctx = canvas.getContext('2d');
-    const width = 800;
-    const height = 600;
-    ctx.clearRect(0, 0, width, height);
+    get(this, 'ctx').clearRect(0, 0, get(this, 'width'), get(this, 'height'));
+  },
+
+  movePacMan(direction, amount) {
+    this.incrementProperty(direction, amount);
+    this.clearScreen();
+    this.drawCircle();
   },
 
   drawCircle() {
-    const canvas = this.$('canvas')[0];
-    const ctx = canvas.getContext('2d');
+    const ctx = get(this, 'ctx');
     const x = get(this, 'x');
     const y = get(this, 'y');
     const radius = get(this, 'squareSize') / 2;
@@ -38,25 +47,17 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   },
 
   keyboardShortcuts: {
-    up: function() {
-      this.incrementProperty('y', -1 * this.get('squareSize'));
-      this.clearScreen();
-      this.drawCircle();
+    up() {
+      this.movePacMan('y', -1 * this.get('squareSize'));
     },
-    down: function() {
-      this.incrementProperty('y', this.get('squareSize'));
-      this.clearScreen();
-      this.drawCircle();
+    down() {
+      this.movePacMan('y', this.get('squareSize'));
     },
-    left: function() {
-      this.incrementProperty('x', -1 * this.get('squareSize'));
-      this.clearScreen();
-      this.drawCircle();
+    left() {
+      this.movePacMan('x', -1 * this.get('squareSize'));
     },
-    right: function() {
-      this.incrementProperty('x', this.get('squareSize'));
-      this.clearScreen();
-      this.drawCircle();
+    right() {
+      this.movePacMan('x', this.get('squareSize'));
     },
   },
 });
