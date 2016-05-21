@@ -10,12 +10,29 @@ const {
 export default Ember.Component.extend(KeyboardShortcuts, {
   x: 1,
   y: 2,
-  width: 20,
-  height: 15,
+  width: computed('grid', function() {
+    return get(this, 'grid.firstObject.length');
+  }),
+  height: computed('grid', function() {
+    return get(this, 'grid.length');
+  }),
   squareSize: 20,
-  walls: [
-    { x: 1, y: 1 },
-    { x: 8, y: 5 }
+  grid: [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
   ],
 
   ctx: computed(function() {
@@ -40,8 +57,8 @@ export default Ember.Component.extend(KeyboardShortcuts, {
 
   collidedWithWall() {
     let x = this.get('x');
-     let y = this.get('y');
-     return this.get('walls').any((wall) => x == wall.x && y == wall.y);
+    let y = this.get('y');
+    return get(this, 'grid')[y][x] === 1;
   },
 
   clearScreen() {
@@ -52,7 +69,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   movePacMan(direction, amount) {
     this.incrementProperty(direction, amount);
     if (this.collidedWithBorder() || this.collidedWithWall()) {
-      this.decrementProperty(direction, amount)
+      this.decrementProperty(direction, amount);
     }
     this.clearScreen();
     this.drawWalls();
@@ -60,10 +77,20 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   },
 
   drawWalls() {
-    const squareSize = get(this, 'squareSize');
-    const ctx = get(this, 'ctx');
+    const squareSize = this.get('squareSize');
+    const ctx = this.get('ctx');
     ctx.fillStyle = '#ded';
-    get(this, 'walls').forEach((wall) => ctx.fillRect(wall.x*squareSize, wall.y*squareSize, squareSize, squareSize));
+
+    get(this, 'grid')
+      .forEach((row, rowIndex) =>
+                row.forEach((cell, columnIndex) => cell === 1 && ctx.fillRect(
+                  columnIndex * squareSize,
+                  rowIndex * squareSize,
+                  squareSize,
+                  squareSize
+                )
+              )
+            );
   },
 
   drawCircle() {
@@ -71,7 +98,6 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     const squareSize = get(this, 'squareSize');
     const pixelX = (get(this, 'x') + 1 / 2) * squareSize;
     const pixelY = (get(this, 'y') + 1 / 2) * squareSize;
-    const y = (get(this, 'y') + 1 / 2) * squareSize;
 
     ctx.fillStyle = '#000';
     ctx.beginPath();
