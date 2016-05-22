@@ -46,7 +46,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     this.$('canvas').attr('height', get(this, 'height') * squareSize);
 
     this.drawGrid();
-    this.drawCircle();
+    this.drawPacman();
   }),
 
   collidedWithBorder() {
@@ -73,7 +73,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     }
     this.clearScreen();
     this.drawGrid();
-    this.drawCircle();
+    this.drawPacman();
   },
 
   drawWall(x, y) {
@@ -90,15 +90,9 @@ export default Ember.Component.extend(KeyboardShortcuts, {
 
   drawPallet(x, y) {
     const squareSize = this.get('squareSize');
-    const ctx = this.get('ctx');
-    ctx.fillStyle = '#a0a';
     let pixelX = (x + 1 / 2) * squareSize;
     let pixelY = (y + 1 / 2) * squareSize;
-
-    ctx.beginPath();
-    ctx.arc(pixelX, pixelY, squareSize / 6, 0, Math.PI * 2, false);
-    ctx.closePath();
-    ctx.fill();
+    this.drawCircle(pixelX, pixelY, squareSize / 6, '#a0a');
   },
 
   drawGrid() {
@@ -114,17 +108,20 @@ export default Ember.Component.extend(KeyboardShortcuts, {
       );
   },
 
-  drawCircle() {
-    const ctx = get(this, 'ctx');
+  drawCircle(x, y, radius, color='#fff') {
+    const ctx = this.get('ctx');
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+    ctx.closePath();
+    ctx.fill();
+  },
+
+  drawPacman() {
     const squareSize = get(this, 'squareSize');
     const pixelX = (get(this, 'x') + 1 / 2) * squareSize;
     const pixelY = (get(this, 'y') + 1 / 2) * squareSize;
-
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(pixelX, pixelY, squareSize / 2, 0, Math.PI * 2, false);
-    ctx.closePath();
-    ctx.fill();
+    this.drawCircle(pixelX, pixelY, squareSize / 2, '#000');
   },
 
   keyboardShortcuts: {
