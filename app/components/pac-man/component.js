@@ -18,21 +18,21 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   }),
   squareSize: 20,
   grid: [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    [2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
   ],
 
   ctx: computed(function() {
@@ -45,7 +45,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     this.$('canvas').attr('width', get(this, 'width') * squareSize);
     this.$('canvas').attr('height', get(this, 'height') * squareSize);
 
-    this.drawWalls();
+    this.drawGrid();
     this.drawCircle();
   }),
 
@@ -72,25 +72,46 @@ export default Ember.Component.extend(KeyboardShortcuts, {
       this.decrementProperty(direction, amount);
     }
     this.clearScreen();
-    this.drawWalls();
+    this.drawGrid();
     this.drawCircle();
   },
 
-  drawWalls() {
+  drawWall(x, y) {
     const squareSize = this.get('squareSize');
     const ctx = this.get('ctx');
     ctx.fillStyle = '#ded';
+    ctx.fillRect(
+      x * squareSize,
+      y * squareSize,
+      squareSize,
+      squareSize
+    );
+  },
 
+  drawPallet(x, y) {
+    const squareSize = this.get('squareSize');
+    const ctx = this.get('ctx');
+    ctx.fillStyle = '#a0a';
+    let pixelX = (x + 1 / 2) * squareSize;
+    let pixelY = (y + 1 / 2) * squareSize;
+
+    ctx.beginPath();
+    ctx.arc(pixelX, pixelY, squareSize / 6, 0, Math.PI * 2, false);
+    ctx.closePath();
+    ctx.fill();
+  },
+
+  drawGrid() {
     get(this, 'grid')
       .forEach((row, rowIndex) =>
-                row.forEach((cell, columnIndex) => cell === 1 && ctx.fillRect(
-                  columnIndex * squareSize,
-                  rowIndex * squareSize,
-                  squareSize,
-                  squareSize
-                )
-              )
-            );
+        row.forEach((cell, columnIndex) => {
+          if (cell === 1) {
+            this.drawWall(columnIndex, rowIndex);
+          } else if (cell === 2) {
+            this.drawPallet(columnIndex, rowIndex);
+          }
+        })
+      );
   },
 
   drawCircle() {
