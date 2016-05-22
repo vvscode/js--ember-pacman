@@ -66,11 +66,23 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     get(this, 'ctx').clearRect(0, 0, get(this, 'width') * squareSize, get(this, 'height') * squareSize);
   },
 
+  processAnyPellets() {
+    let x = this.get('x');
+    let y = this.get('y');
+    let grid = this.get('grid');
+
+    if (grid[y][x] == 2) {
+      grid[y][x] = 0;
+    }
+  },
+
   movePacMan(direction, amount) {
     this.incrementProperty(direction, amount);
     if (this.collidedWithBorder() || this.collidedWithWall()) {
       this.decrementProperty(direction, amount);
     }
+    this.processAnyPellets();
+
     this.clearScreen();
     this.drawGrid();
     this.drawPacman();
@@ -108,7 +120,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
       );
   },
 
-  drawCircle(x, y, radius, color='#fff') {
+  drawCircle(x, y, radius, color = '#fff') {
     const ctx = this.get('ctx');
     ctx.fillStyle = color;
     ctx.beginPath();
