@@ -8,6 +8,7 @@ const {
 } = Ember;
 
 export default Ember.Component.extend(KeyboardShortcuts, {
+  level: 0,
   score: 0,
   x: 1,
   y: 2,
@@ -41,6 +42,10 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     return canvas.getContext('2d');
   }),
 
+  isLevelComplete() {
+    return !get(this, 'grid').any((row) => row.any((cell) => cell === 2));
+  },
+
   onDinInsertElement: on('didInsertElement', function() {
     const squareSize = get(this, 'squareSize');
     this.$('canvas').attr('width', get(this, 'width') * squareSize);
@@ -49,6 +54,16 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     this.drawGrid();
     this.drawPacman();
   }),
+
+  restartLevel() {
+    this.set('x', 0);
+    this.set('y', 0);
+
+    const grid = this.get('grid');
+    grid.forEach((row, rowIndex) =>
+      row.forEach((cell, columnIndex) => (cell === 0) && (grid[rowIndex][columnIndex] = 2))
+    );
+  },
 
   collidedWithBorder() {
     const x = this.get('x');
@@ -75,6 +90,10 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     if (grid[y][x] == 2) {
       grid[y][x] = 0;
       this.incrementProperty('score');
+      if (this.isLevelComplete()) {
+        this.incrementProperty('level');
+        this.restartLevel();
+      }
     }
   },
 
