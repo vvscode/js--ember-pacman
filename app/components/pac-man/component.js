@@ -8,6 +8,7 @@ const {
 } = Ember;
 
 export default Ember.Component.extend(KeyboardShortcuts, {
+  score: 0,
   x: 1,
   y: 2,
   width: computed('grid', function() {
@@ -73,6 +74,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
 
     if (grid[y][x] == 2) {
       grid[y][x] = 0;
+      this.incrementProperty('score');
     }
   },
 
