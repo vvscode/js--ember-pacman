@@ -4,7 +4,8 @@ import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component';
 const {
   on,
   get,
-  computed
+  computed,
+  isEmpty
 } = Ember;
 
 export default Ember.Component.extend(KeyboardShortcuts, {
@@ -97,12 +98,27 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     }
   },
 
-  movePacMan(direction, amount) {
-    this.incrementProperty(direction, amount);
-    if (this.collidedWithBorder() || this.collidedWithWall()) {
-      this.decrementProperty(direction, amount);
+ pathBlockedInDirection(direction) {
+   let cellTypeInDirection = this.cellTypeInDirection(direction);
+   return isEmpty(cellTypeInDirection) || cellTypeInDirection === 1;
+ },
+
+ cellTypeInDirection(direction) {
+   let nextX = this.nextCoordinate('x', direction);
+   let nextY = this.nextCoordinate('y', direction);
+   return get(this, `grid.${nextY}.${nextX}`);
+  },
+
+  nextCoordinate(coordinate, direction){
+    return get(this, coordinate) + get(this, `directions.${direction}.${coordinate}`);
+  },
+
+  movePacMan(direction) {
+    if(!this.pathBlockedInDirection(direction)){
+      this.set('x', this.nextCoordinate('x', direction));
+      this.set('y', this.nextCoordinate('y', direction));
+      this.processAnyPellets();
     }
-    this.processAnyPellets();
 
     this.clearScreen();
     this.drawGrid();
@@ -157,18 +173,18 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     this.drawCircle(pixelX, pixelY, squareSize / 2, '#000');
   },
 
+   directions: {
+    'up': {x: 0, y: -1},
+    'down': {x: 0, y: 1},
+    'left': {x: -1, y: 0},
+    'right': {x: 1, y: 0},
+    'stopped': {x: 0, y: 0}
+   },
+
   keyboardShortcuts: {
-    up() {
-      this.movePacMan('y', -1);
-    },
-    down() {
-      this.movePacMan('y', 1);
-    },
-    left() {
-      this.movePacMan('x', -1);
-    },
-    right() {
-      this.movePacMan('x', 1);
-    },
+    up() { this.movePacMan('up'); },
+    down() { this.movePacMan('down'); },
+    left() { this.movePacMan('left'); },
+    right() { this.movePacMan('right'); },
   },
 });
