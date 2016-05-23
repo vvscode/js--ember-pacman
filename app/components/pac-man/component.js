@@ -5,7 +5,9 @@ const {
   on,
   get,
   computed,
-  isEmpty
+  isEmpty,
+  run,
+  set
 } = Ember;
 
 export default Ember.Component.extend(KeyboardShortcuts, {
@@ -13,6 +15,10 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   score: 0,
   x: 1,
   y: 2,
+  frameCycle: 1,
+  framesPerMovement: 15,
+  isMoving: false,
+  direction: 'stopped',
   width: computed('grid', function() {
     return get(this, 'grid.firstObject.length');
   }),
@@ -53,7 +59,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     this.$('canvas').attr('height', get(this, 'height') * squareSize);
 
     this.drawGrid();
-    this.drawPacman();
+    this.drawPac();
   }),
 
   restartLevel() {
@@ -98,31 +104,59 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     }
   },
 
- pathBlockedInDirection(direction) {
-   let cellTypeInDirection = this.cellTypeInDirection(direction);
-   return isEmpty(cellTypeInDirection) || cellTypeInDirection === 1;
- },
-
- cellTypeInDirection(direction) {
-   let nextX = this.nextCoordinate('x', direction);
-   let nextY = this.nextCoordinate('y', direction);
-   return get(this, `grid.${nextY}.${nextX}`);
+  pathBlockedInDirection(direction) {
+    let cellTypeInDirection = this.cellTypeInDirection(direction);
+    return isEmpty(cellTypeInDirection) || cellTypeInDirection === 1;
   },
 
-  nextCoordinate(coordinate, direction){
+  cellTypeInDirection(direction) {
+    let nextX = this.nextCoordinate('x', direction);
+    let nextY = this.nextCoordinate('y', direction);
+    return get(this, `grid.${nextY}.${nextX}`);
+  },
+
+  nextCoordinate(coordinate, direction) {
     return get(this, coordinate) + get(this, `directions.${direction}.${coordinate}`);
   },
 
-  movePacMan(direction) {
-    if(!this.pathBlockedInDirection(direction)){
-      this.set('x', this.nextCoordinate('x', direction));
-      this.set('y', this.nextCoordinate('y', direction));
+  drawPac() {
+    let x = get(this, 'x');
+    let y = get(this, 'y');
+    let radiusDivisor = 2;
+    this.drawCircle(x, y, radiusDivisor, get(this, 'direction'));
+  },
+
+  drawPellet(x, y) {
+    let radiusDivisor = 6;
+    this.drawCircle(x, y, radiusDivisor, 'stopped');
+  },
+
+  movementLoop() {
+    if (this.get('frameCycle') == this.get('framesPerMovement')) {
+      let direction = this.get('direction')
+      set(this, 'x', this.nextCoordinate('x', direction));
+      set(this, 'y', this.nextCoordinate('y', direction));
+      set(this, 'isMoving', false);
+      set(this, 'frameCycle', 1);
+
       this.processAnyPellets();
+    } else {
+      this.incrementProperty('frameCycle');
+      run.later(this, this.movementLoop, 1000 / 60);
     }
 
     this.clearScreen();
     this.drawGrid();
-    this.drawPacman();
+    this.drawPac();
+  },
+
+  movePacMan(direction) {
+    let inputBlocked = this.get('isMoving') || this.pathBlockedInDirection(direction)
+    if (!inputBlocked) {
+      this.set('direction', direction)
+      this.set('isMoving', true)
+      this.movementLoop()
+    }
   },
 
   drawWall(x, y) {
@@ -137,13 +171,6 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     );
   },
 
-  drawPallet(x, y) {
-    const squareSize = this.get('squareSize');
-    let pixelX = (x + 1 / 2) * squareSize;
-    let pixelY = (y + 1 / 2) * squareSize;
-    this.drawCircle(pixelX, pixelY, squareSize / 6, '#a0a');
-  },
-
   drawGrid() {
     get(this, 'grid')
       .forEach((row, rowIndex) =>
@@ -151,40 +178,66 @@ export default Ember.Component.extend(KeyboardShortcuts, {
           if (cell === 1) {
             this.drawWall(columnIndex, rowIndex);
           } else if (cell === 2) {
-            this.drawPallet(columnIndex, rowIndex);
+            this.drawPellet(columnIndex, rowIndex);
           }
         })
       );
   },
 
-  drawCircle(x, y, radius, color = '#fff') {
-    const ctx = this.get('ctx');
+  offsetFor(coordinate, direction) {
+    let frameRatio = get(this, 'frameCycle') / get(this, 'framesPerMovement');
+    return get(this, `directions.${direction}.${coordinate}`) * frameRatio;
+  },
+
+  drawCircle(x, y, radiusDivisor, direction, color = '#000') {
+    let ctx = get(this, 'ctx')
+    let squareSize = get(this, 'squareSize');
+
+    let pixelX = (x + 1 / 2 + this.offsetFor('x', direction)) * squareSize;
+    let pixelY = (y + 1 / 2 + this.offsetFor('y', direction)) * squareSize;
+
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+    ctx.arc(pixelX, pixelY, squareSize / radiusDivisor, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
   },
 
-  drawPacman() {
-    const squareSize = get(this, 'squareSize');
-    const pixelX = (get(this, 'x') + 1 / 2) * squareSize;
-    const pixelY = (get(this, 'y') + 1 / 2) * squareSize;
-    this.drawCircle(pixelX, pixelY, squareSize / 2, '#000');
+  directions: {
+    'up': {
+      x: 0,
+      y: -1
+    },
+    'down': {
+      x: 0,
+      y: 1
+    },
+    'left': {
+      x: -1,
+      y: 0
+    },
+    'right': {
+      x: 1,
+      y: 0
+    },
+    'stopped': {
+      x: 0,
+      y: 0
+    }
   },
 
-   directions: {
-    'up': {x: 0, y: -1},
-    'down': {x: 0, y: 1},
-    'left': {x: -1, y: 0},
-    'right': {x: 1, y: 0},
-    'stopped': {x: 0, y: 0}
-   },
-
   keyboardShortcuts: {
-    up() { this.movePacMan('up'); },
-    down() { this.movePacMan('down'); },
-    left() { this.movePacMan('left'); },
-    right() { this.movePacMan('right'); },
+    up() {
+      this.movePacMan('up');
+    },
+    down() {
+      this.movePacMan('down');
+    },
+    left() {
+      this.movePacMan('left');
+    },
+    right() {
+      this.movePacMan('right');
+    },
   },
 });
