@@ -5,6 +5,11 @@ import Level from '../../models/level';
 import Level2 from '../../models/level2';
 import SharedStuff from '../../mixins/shared-stuff';
 
+const LEVELS = {
+  0: Level,
+  1: Level2
+};
+
 const {
   on,
   get,
@@ -24,7 +29,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
   },
 
   onDinInsertElement: on('didInsertElement', function() {
-    set(this, 'level', Level2.create({}));
+    set(this, 'level', LEVELS[0].create({}));
     this.set('pac', Pac.create({
       level: get(this, 'level'),
       x: get(this, 'level.startingPac.x'),
@@ -38,6 +43,10 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
   }),
 
   restart(){
+    const Level = LEVELS[get(this, 'levelNumber') % Object.keys(LEVELS).length];
+    const level = Level.create({});
+    set(this, 'level', level);
+    set(this, 'pac.level', level);
     this.get('pac').restart();
     this.get('level').restart();
   },
@@ -69,7 +78,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
       this.incrementProperty('score');
       if (this.isLevelComplete()) {
         this.incrementProperty('levelNumber');
-        this.restartLevel();
+        this.restart();
       }
     }
   },
@@ -85,7 +94,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     this.clearScreen();
     this.drawGrid();
     get(this, 'pac').draw();
-    run.later(this, this.movementLoop, 1000 / 60);
+    run.later(this, this.movementLoop, 500 / 60);
   },
 
   drawPac() {
