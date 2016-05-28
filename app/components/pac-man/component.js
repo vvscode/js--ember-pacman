@@ -28,6 +28,12 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     return get(this, 'level').isComplete();
   },
 
+  updateCanvas() {
+    const squareSize = get(this, 'level.squareSize');
+    this.$('canvas').attr('width', get(this, 'level.width') * squareSize);
+    this.$('canvas').attr('height', get(this, 'level.height') * squareSize);
+  },
+
   onDinInsertElement: on('didInsertElement', function() {
     set(this, 'level', LEVELS[0].create({}));
     this.set('pac', Pac.create({
@@ -35,10 +41,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
       x: get(this, 'level.startingPac.x'),
       y: get(this, 'level.startingPac.y')
     }));
-    const squareSize = get(this, 'level.squareSize');
-    this.$('canvas').attr('width', get(this, 'level.width') * squareSize);
-    this.$('canvas').attr('height', get(this, 'level.height') * squareSize);
-
+    this.updateCanvas();
     this.movementLoop();
   }),
 
@@ -47,6 +50,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     const level = Level.create({});
     set(this, 'level', level);
     set(this, 'pac.level', level);
+    this.updateCanvas();
     this.get('pac').restart();
     this.get('level').restart();
   },
