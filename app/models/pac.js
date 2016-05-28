@@ -20,6 +20,13 @@ export default Ember.Object.extend(SharedStuff, {
     this.drawCircle(x, y, radiusDivisor, get(this, 'direction'));
   },
 
+  restart(){
+    set(this, 'x', get(this, 'level.startingPac.x'));
+    set(this, 'y', get(this, 'level.startingPac.y'));
+    set(this, 'frameCycle', 0);
+    set(this, 'direction', 'stopped');
+  },
+
   changeDirection(){
     let intent = get(this, 'intent');
     if (this.pathBlockedInDirection(intent)) {
@@ -36,5 +43,5 @@ export default Ember.Object.extend(SharedStuff, {
 
   nextCoordinate(coordinate, direction) {
     return get(this, coordinate) + get(this, `directions.${direction}.${coordinate}`);
-  },
+  }
 });

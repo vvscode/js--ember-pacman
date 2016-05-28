@@ -35,7 +35,7 @@ export default Ember.Mixin.create({
 
   drawCircle(x, y, radiusDivisor, direction, color = '#000') {
     let ctx = get(this, 'ctx');
-    let squareSize = get(this, 'squareSize');
+    let squareSize = get(this, 'level.squareSize');
 
     let pixelX = (x + 1 / 2 + this.offsetFor('x', direction)) * squareSize;
     let pixelY = (y + 1 / 2 + this.offsetFor('y', direction)) * squareSize;
@@ -46,25 +46,6 @@ export default Ember.Mixin.create({
     ctx.closePath();
     ctx.fill();
   },
-
-  squareSize: 20,
-  grid: [
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    [2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1]
-  ],
 
   ctx: computed(function() {
     const canvas = $('canvas')[0]; // sad, that it become global
@@ -79,6 +60,6 @@ export default Ember.Mixin.create({
   cellTypeInDirection(direction) {
     let nextX = this.nextCoordinate('x', direction);
     let nextY = this.nextCoordinate('y', direction);
-    return get(this, `grid.${nextY}.${nextX}`);
+    return get(this, `level.grid.${nextY}.${nextX}`);
   }
 });

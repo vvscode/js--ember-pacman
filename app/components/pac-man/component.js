@@ -1,75 +1,74 @@
 import Ember from 'ember';
 import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component';
 import Pac from '../../models/pac';
+import Level from '../../models/level';
+import Level2 from '../../models/level2';
 import SharedStuff from '../../mixins/shared-stuff';
 
 const {
   on,
   get,
-  computed,
   run,
   set,
   Component
 } = Ember;
 
 export default Component.extend(KeyboardShortcuts, SharedStuff, {
-  level: 0,
+  levelNumber: 0,
   score: 0,
 
   isMoving: false,
 
-  width: computed.oneWay('grid.firstObject.length'),
-  height: computed.oneWay('grid.length'),
-
   isLevelComplete() {
-    return !get(this, 'grid').any((row) => row.any((cell) => cell === 2));
+    return get(this, 'level').isComplete();
   },
 
   onDinInsertElement: on('didInsertElement', function() {
-    const squareSize = get(this, 'squareSize');
-    this.$('canvas').attr('width', get(this, 'width') * squareSize);
-    this.$('canvas').attr('height', get(this, 'height') * squareSize);
-    set(this, 'pac', Pac.create({}));
+    set(this, 'level', Level2.create({}));
+    this.set('pac', Pac.create({
+      level: get(this, 'level'),
+      x: get(this, 'level.startingPac.x'),
+      y: get(this, 'level.startingPac.y')
+    }));
+    const squareSize = get(this, 'level.squareSize');
+    this.$('canvas').attr('width', get(this, 'level.width') * squareSize);
+    this.$('canvas').attr('height', get(this, 'level.height') * squareSize);
+
     this.movementLoop();
   }),
 
-  restartLevel() {
-    set(this, 'pac.x', 0);
-    set(this, 'pac.y', 0);
-
-    const grid = get(this, 'grid');
-    grid.forEach((row, rowIndex) =>
-      row.forEach((cell, columnIndex) => (cell === 0) && (grid[rowIndex][columnIndex] = 2))
-    );
+  restart(){
+    this.get('pac').restart();
+    this.get('level').restart();
   },
 
   collidedWithBorder() {
     const x = get(this, 'pac.x');
     const y = get(this, 'pac.y');
-    return (x < 0 || y < 0 || x >= get(this, 'width') || y >= get(this, 'height'));
+    return (x < 0 || y < 0 || x >= get(this, 'level.width') || y >= get(this, 'level.height'));
   },
 
   collidedWithWall() {
     let x = get(this, 'pac.x');
     let y = get(this, 'pac.y');
-    return get(this, 'grid')[y][x] === 1;
+    return get(this, 'level.grid')[y][x] === 1;
   },
 
   clearScreen() {
-    const squareSize = get(this, 'squareSize');
-    get(this, 'ctx').clearRect(0, 0, get(this, 'width') * squareSize, get(this, 'height') * squareSize);
+    const squareSize = get(this, 'level.squareSize');
+    get(this, 'ctx').clearRect(0, 0, get(this, 'level.width') * squareSize, get(this, 'level.height') * squareSize);
   },
 
   processAnyPellets() {
     let x = get(this, 'pac.x');
     let y = get(this, 'pac.y');
-    let grid = get(this, 'grid');
+    let grid = get(this, 'level.grid');
 
     if (grid[y][x] === 2) {
       grid[y][x] = 0;
       this.incrementProperty('score');
       if (this.isLevelComplete()) {
-        this.incrementProperty('level');
+        this.incrementProperty('levelNumber');
         this.restartLevel();
       }
     }
@@ -99,7 +98,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     this.drawGrid();
     this.drawPac();
 
-    run.later(this, this.movementLoop, 1000 / 60);
+    run.later(this, this.movementLoop, 500 / 90);
   },
 
   drawPac() {
@@ -124,7 +123,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
   },
 
   drawWall(x, y) {
-    const squareSize = get(this, 'squareSize');
+    const squareSize = get(this, 'level.squareSize');
     const ctx = get(this, 'ctx');
     ctx.fillStyle = '#ded';
     ctx.fillRect(
@@ -136,7 +135,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
   },
 
   drawGrid() {
-    get(this, 'grid')
+    get(this, 'level.grid')
       .forEach((row, rowIndex) =>
         row.forEach((cell, columnIndex) => {
           if (cell === 1) {
