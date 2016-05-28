@@ -80,25 +80,12 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
   },
 
   movementLoop(){
-    if (get(this, 'frameCycle') === get(this, 'framesPerMovement')) {
-      let direction = get(this, 'pac.direction');
-      set(this, 'pac.x', this.nextCoordinate('x', direction));
-      set(this, 'pac.y', this.nextCoordinate('y', direction));
-
-      set(this, 'frameCycle', 1);
-      this.processAnyPellets();
-      this.changePacDirection();
-    } else if (get(this, 'pac.direction') === 'stopped') {
-      this.changePacDirection();
-    } else {
-      this.incrementProperty('frameCycle');
-    }
-
+    get(this, 'pac').move();
+    this.processAnyPellets();
     this.clearScreen();
     this.drawGrid();
-    this.drawPac();
-
-    run.later(this, this.movementLoop, 500 / 90);
+    get(this, 'pac').draw();
+    run.later(this, this.movementLoop, 1000 / 60);
   },
 
   drawPac() {

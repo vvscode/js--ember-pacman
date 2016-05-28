@@ -43,5 +43,27 @@ export default Ember.Object.extend(SharedStuff, {
 
   nextCoordinate(coordinate, direction) {
     return get(this, coordinate) + get(this, `directions.${direction}.${coordinate}`);
+  },
+
+  move(){
+    if (this.animationCompleted()) {
+      this.finalizeMove();
+      this.changeDirection();
+    }
+    else if (get(this, 'direction') === 'stopped') {
+      this.changeDirection();
+    } else {
+      this.incrementProperty('frameCycle');
+    }
+  },
+  animationCompleted(){
+    return get(this, 'frameCycle') === get(this, 'framesPerMovement');
+  },
+  finalizeMove(){
+    let direction = this.get('direction');
+    set(this, 'x', this.nextCoordinate('x', direction));
+    set(this, 'y', this.nextCoordinate('y', direction));
+
+    set(this, 'frameCycle', 1);
   }
 });
