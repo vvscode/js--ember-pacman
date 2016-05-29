@@ -1,13 +1,14 @@
 import Ember from 'ember';
 import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component';
 import Pac from '../../models/pac';
+import Ghost from '../../models/ghost';
 import Level from '../../models/level';
 import Level2 from '../../models/level2';
 import SharedStuff from '../../mixins/shared-stuff';
 
 const LEVELS = {
-  0: Level,
-  1: Level2
+  0: Level2,
+  1: Level
 };
 
 const {
@@ -36,11 +37,18 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
 
   onDinInsertElement: on('didInsertElement', function() {
     set(this, 'level', LEVELS[0].create({}));
-    this.set('pac', Pac.create({
+    set(this, 'pac', Pac.create({
       level: get(this, 'level'),
       x: get(this, 'level.startingPac.x'),
       y: get(this, 'level.startingPac.y')
     }));
+    set(this, 'ghost', Ghost.create({
+      level: get(this, 'level'),
+      x: 4,
+      y: 0,
+      pac: get(this, 'pac')
+    }));
+
     this.updateCanvas();
     this.movementLoop();
   }),
@@ -51,8 +59,8 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     set(this, 'level', level);
     set(this, 'pac.level', level);
     this.updateCanvas();
-    this.get('pac').restart();
-    this.get('level').restart();
+    get(this, 'pac').restart();
+    get(this, 'level').restart();
   },
 
   collidedWithBorder() {
@@ -94,10 +102,12 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
 
   movementLoop(){
     get(this, 'pac').move();
+    get(this, 'ghost').move();
     this.processAnyPellets();
     this.clearScreen();
     this.drawGrid();
     get(this, 'pac').draw();
+    get(this, 'ghost').draw();
     run.later(this, this.movementLoop, 500 / 60);
   },
 

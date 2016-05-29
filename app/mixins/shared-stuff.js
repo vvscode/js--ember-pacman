@@ -55,11 +55,5 @@ export default Ember.Mixin.create({
   offsetFor(coordinate, direction) {
     let frameRatio = get(this, 'frameCycle') / get(this, 'framesPerMovement');
     return get(this, `directions.${direction}.${coordinate}`) * frameRatio;
-  },
-
-  cellTypeInDirection(direction) {
-    let nextX = this.nextCoordinate('x', direction);
-    let nextY = this.nextCoordinate('y', direction);
-    return get(this, `level.grid.${nextY}.${nextX}`);
   }
 });
