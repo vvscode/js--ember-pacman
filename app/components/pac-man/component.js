@@ -113,6 +113,11 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     this.drawGrid();
     get(this, 'pac').draw();
     get(this, 'ghosts').forEach((ghost)=> ghost.draw());
+
+    if (this.collidedWithGhost()) {
+      this.restart();
+    }
+
     run.later(this, this.movementLoop, 500 / 60);
   },
 
@@ -160,6 +165,10 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
           }
         })
       );
+  },
+
+  collidedWithGhost(){
+    return get(this, 'ghosts').any((ghost)=> get(this, 'pac.x') === get(ghost, 'x') && get(this, 'pac.y') === get(ghost, 'y'));
   },
 
   keyboardShortcuts: {
