@@ -11,7 +11,10 @@ export default EmObject.extend({
     x: 0,
     y: 0
   },
-
+  ghostsStartings: [
+    { x: 4, y: 0},
+    { x: 1, y: 5}
+  ],
   // 0 is a blank space
   // 1 is a wall
   // 2 is a pellet

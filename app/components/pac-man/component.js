@@ -35,6 +35,15 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     this.$('canvas').attr('height', get(this, 'level.height') * squareSize);
   },
 
+  initGhosts() {
+    set(this, 'ghosts', get(this, 'level.ghostsStartings').map((item) => Ghost.create({
+      level: get(this, 'level'),
+      x: item.x,
+      y: item.y,
+      pac: get(this, 'pac')
+    })));
+  },
+
   onDinInsertElement: on('didInsertElement', function() {
     set(this, 'level', LEVELS[0].create({}));
     set(this, 'pac', Pac.create({
@@ -42,13 +51,8 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
       x: get(this, 'level.startingPac.x'),
       y: get(this, 'level.startingPac.y')
     }));
-    set(this, 'ghost', Ghost.create({
-      level: get(this, 'level'),
-      x: 4,
-      y: 0,
-      pac: get(this, 'pac')
-    }));
 
+    this.initGhosts();
     this.updateCanvas();
     this.movementLoop();
   }),
@@ -58,6 +62,7 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     const level = Level.create({});
     set(this, 'level', level);
     set(this, 'pac.level', level);
+    this.initGhosts();
     this.updateCanvas();
     get(this, 'pac').restart();
     get(this, 'level').restart();
@@ -102,12 +107,12 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
 
   movementLoop(){
     get(this, 'pac').move();
-    get(this, 'ghost').move();
+    get(this, 'ghosts').forEach((ghost)=> ghost.move());
     this.processAnyPellets();
     this.clearScreen();
     this.drawGrid();
     get(this, 'pac').draw();
-    get(this, 'ghost').draw();
+    get(this, 'ghosts').forEach((ghost)=> ghost.draw());
     run.later(this, this.movementLoop, 500 / 60);
   },
 
