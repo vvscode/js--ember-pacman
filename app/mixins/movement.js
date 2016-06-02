@@ -27,7 +27,7 @@ export default Mixin.create({
     return get(this, 'frameCycle') === get(this, 'framesPerMovement');
   },
   finalizeMove(){
-    let direction = this.get('direction');
+    let direction = get(this, 'direction');
     set(this, 'x', this.nextCoordinate('x', direction));
     set(this, 'y', this.nextCoordinate('y', direction));
 
@@ -42,7 +42,19 @@ export default Mixin.create({
     let nextY = this.nextCoordinate('y', direction);
     return get(this, `level.grid.${nextY}.${nextX}`);
   },
-  nextCoordinate(coordinate, direction) {
-    return get(this, coordinate) + get(this, `directions.${direction}.${coordinate}`);
+  nextCoordinate(coordinate, direction){
+    let next = get(this, coordinate) + get(this, `directions.${direction}.${coordinate}`);
+    if (get(this, 'level.teleport')) {
+      if (direction === 'up' || direction === 'down') {
+        return this.modulo(next, get(this, 'level.height'));
+      } else {
+        return this.modulo(next, get(this, 'level.width'));
+      }
+    } else {
+      return next;
+    }
+  },
+  modulo(num, mod) {
+    return ((num + mod) % mod);
   }
 });
