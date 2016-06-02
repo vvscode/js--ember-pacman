@@ -97,12 +97,20 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
         this.incrementProperty('levelNumber');
         this.restart();
       }
+    } else if (grid[y][x] === 3 ){
+      grid[y][x] = 0;
+      get(this, 'pac').enablePowerMode(10);
     }
   },
 
   drawPellet(x, y) {
     let radiusDivisor = 6;
     this.drawCircle(x, y, radiusDivisor, 'stopped');
+  },
+
+  drawPowerPellet(x, y) {
+    let radiusDivisor = 2;
+    this.drawCircle(x, y, radiusDivisor, 'stopped', 'green');
   },
 
   movementLoop(){
@@ -114,11 +122,22 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
     get(this, 'pac').draw();
     get(this, 'ghosts').forEach((ghost)=> ghost.draw());
 
-    if (this.collidedWithGhost()) {
-      this.restart();
+    const collaidedGhost = this.collidedWithGhost();
+    if (collaidedGhost) {
+      if(get(this, 'pac.powerMode')) {
+        this.pacEatGhost(collaidedGhost);
+      } else {
+        this.restart();
+      }
     }
 
     run.later(this, this.movementLoop, 500 / 60);
+  },
+
+  pacEatGhost(ghost) {
+    get(this, 'ghosts').removeObject(ghost);
+    get(this, 'level.grid')[get(ghost, 'y')][get(ghost, 'x')] = 0;
+    this.incrementProperty('score', 10);
   },
 
   drawPac() {
@@ -162,13 +181,15 @@ export default Component.extend(KeyboardShortcuts, SharedStuff, {
             this.drawWall(columnIndex, rowIndex);
           } else if (cell === 2) {
             this.drawPellet(columnIndex, rowIndex);
+          } else if(cell === 3){
+            this.drawPowerPellet(columnIndex, rowIndex)
           }
         })
       );
   },
 
   collidedWithGhost(){
-    return get(this, 'ghosts').any((ghost)=> get(this, 'pac.x') === get(ghost, 'x') && get(this, 'pac.y') === get(ghost, 'y'));
+    return get(this, 'ghosts').find((ghost)=> get(this, 'pac.x') === get(ghost, 'x') && get(this, 'pac.y') === get(ghost, 'y'));
   },
 
   keyboardShortcuts: {
